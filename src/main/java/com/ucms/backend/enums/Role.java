@@ -1,10 +1,13 @@
 package com.ucms.backend.enums;
 
-import com.ucms.backend.deserializer.EnumValue;
+
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.ucms.backend.deserializer.GenericRoleDeserializer;
 import lombok.Getter;
 
 @Getter
-public enum Role implements EnumValue {
+@JsonDeserialize(using = GenericRoleDeserializer.class)
+public enum Role {
     CUSTOMER("CUSTOMER"),
     SUPPLIER("SUPPLIER"),
     BOTH("BOTH");
@@ -16,7 +19,7 @@ public enum Role implements EnumValue {
     }
 
     @Override
-    public String getValue() {
-        return "";
+    public String toString() {
+        return value.toUpperCase();
     }
 }

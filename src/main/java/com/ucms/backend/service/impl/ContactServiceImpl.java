@@ -2,6 +2,7 @@ package com.ucms.backend.service.impl;
 
 
 import com.ucms.backend.dto.ContactDTO;
+import com.ucms.backend.exception.ResourceFoundException;
 import com.ucms.backend.exception.ResourceNotFoundException;
 import com.ucms.backend.map.ContactMapper;
 import com.ucms.backend.model.Contact;
@@ -35,6 +36,10 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactDTO createContact(ContactDTO contactDTO) {
+        contactRepository.findByEmailAndRole(contactDTO.getEmail(), contactDTO.getRole())
+                .ifPresent(contact -> {
+                    throw new ResourceFoundException("Contact with email: " + contactDTO.getEmail() + " is already in the system  as " + contactDTO.getRole() + ". Please choose another role");
+                });
         var contact = ContactMapper.contactDTOToContact(contactDTO);
         var savedContact = contactRepository.save(contact);
         return ContactMapper.contactToContactDTO(savedContact);

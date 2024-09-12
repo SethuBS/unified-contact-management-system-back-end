@@ -1,10 +1,12 @@
 package com.ucms.backend.enums;
 
-import com.ucms.backend.deserializer.EnumValue;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.ucms.backend.deserializer.GenericContactTypeDeserializer;
 import lombok.Getter;
 
 @Getter
-public enum ContactType implements EnumValue {
+@JsonDeserialize(using = GenericContactTypeDeserializer.class)
+public enum ContactType {
     PERSON("PERSON"),
     COMPANY("COMPANY");
 
@@ -15,7 +17,7 @@ public enum ContactType implements EnumValue {
     }
 
     @Override
-    public String getValue() {
-        return value;
+    public String toString() {
+        return value.toUpperCase();
     }
 }
