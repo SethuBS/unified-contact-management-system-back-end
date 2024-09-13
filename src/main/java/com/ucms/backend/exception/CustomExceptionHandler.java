@@ -56,6 +56,17 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    @ExceptionHandler(InvalidRoleUpdateException.class)
+    public ResponseEntity<ExceptionDetails> handleInvalidRoleUpdateException(InvalidRoleUpdateException e) {
+        ExceptionDetails error = new ExceptionDetails();
+        error.setTimestamp(LocalDateTime.now());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setError(HttpStatus.BAD_REQUEST.name());
+        error.setReason(e.getMessage());
+        getServletRequestAttributesAndSetPath(error);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     @ExceptionHandler(ContactIllegalArgumentException.class)
     public ResponseEntity<ExceptionDetails> handleContactIllegalArgumentException(ContactIllegalArgumentException e) {
         ExceptionDetails error = new ExceptionDetails();

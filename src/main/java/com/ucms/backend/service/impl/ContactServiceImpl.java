@@ -43,7 +43,7 @@ public class ContactServiceImpl implements ContactService {
         validateContactTypeAndRole(contactDTO.getType(), contactDTO.getRole());
         contactRepository.findByEmailAndRole(contactDTO.getEmail(), contactDTO.getRole())
                 .ifPresent(contact -> {
-                    throw new ResourceFoundException("Contact with email: " + contactDTO.getEmail() + " is already in the system  as " + contactDTO.getRole() + ". Please choose another role");
+                    throw new ResourceFoundException("Contact with email: " + contactDTO.getEmail() + " is already in the system  as " + contactDTO.getRole());
                 });
         var contact = ContactMapper.contactDTOToContact(contactDTO);
         var savedContact = contactRepository.save(contact);
@@ -58,8 +58,8 @@ public class ContactServiceImpl implements ContactService {
                     validateContactTypeAndRole(contactDTO.getType(), contactDTO.getRole());
 
                     // Check if the role update is allowed based on the current role
-                    if (!canUpdateRole(existingContact, contactDTO)) {
-                        throw new InvalidRoleUpdateException("Cannot update role as the contact already has all roles.");
+                    if (!canAddOrUpdateRole(existingContact, contactDTO)) {
+                        throw new InvalidRoleUpdateException("Cannot add or update role as the contact already has all roles.");
                     }
 
                     // Update fields
@@ -97,7 +97,7 @@ public class ContactServiceImpl implements ContactService {
         }
     }
 
-    private boolean canUpdateRole(Contact existingContact, ContactDTO contactDTO) {
+    private boolean canAddOrUpdateRole(Contact existingContact, ContactDTO contactDTO) {
         // Prevent updating role if the contact already has both CUSTOMER and SUPPLIER roles
         return !(existingContact.getRole() == Role.BOTH && contactDTO.getRole() != existingContact.getRole());
     }
