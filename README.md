@@ -59,7 +59,7 @@ com.example.contactapp
 │       └── ContactServiceImpl.java # Implementation of the service interface
 │
 ├── mapper
-│   └── ContactMapper.java       # Interface for mapping between DTO and entity
+│   └── ContactMapper.java       # Class for mapping between DTO and entity
 │
 └── exception
     └── ResourceNotFoundException.java # Custom exception for resource not found scenarios
