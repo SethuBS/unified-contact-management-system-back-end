@@ -3,6 +3,7 @@ package com.ucms.backend.deserializer;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.ucms.backend.exception.ContactIllegalArgumentException;
 
 import java.io.IOException;
 
@@ -26,6 +27,6 @@ public class GenericEnumDeserializer<T extends Enum<T>> extends JsonDeserializer
         }
 
         // If no match found, throw a custom exception (you can define this exception as needed)
-        throw new IllegalArgumentException("Invalid value: " + value + " for enum: " + enumClass.getSimpleName());
+        throw new ContactIllegalArgumentException("Invalid value: " + value + " for enum: " + enumClass.getSimpleName());
     }
 }
