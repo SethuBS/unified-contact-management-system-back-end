@@ -26,6 +26,10 @@ public class GenericEnumDeserializer<T extends Enum<T>> extends JsonDeserializer
             }
         }
 
+        if (value.isBlank() || value.isEmpty()) {
+            throw new ContactIllegalArgumentException(enumClass.getSimpleName() + " cannot be null or empty.");
+        }
+
         // If no match found, throw a custom exception (you can define this exception as needed)
         throw new ContactIllegalArgumentException("Invalid value: " + value + " for enum: " + enumClass.getSimpleName());
     }

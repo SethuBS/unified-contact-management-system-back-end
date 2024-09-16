@@ -29,4 +29,8 @@ public class Contact {
 
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Version
+    @Column(name = "version")
+    private Integer version;
 }
