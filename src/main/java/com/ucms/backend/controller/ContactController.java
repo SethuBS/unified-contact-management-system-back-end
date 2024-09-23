@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/contacts")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ContactController {
 
     @Autowired
