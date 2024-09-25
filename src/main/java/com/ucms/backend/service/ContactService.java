@@ -2,12 +2,12 @@ package com.ucms.backend.service;
 
 
 import com.ucms.backend.dto.ContactDTO;
+import com.ucms.backend.response.PaginatedResponse;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface ContactService {
-    List<ContactDTO> getAllContacts();
+    PaginatedResponse<ContactDTO> getAllContacts(int page, int size, String search);
 
     Optional<ContactDTO> getContactById(Long id);
 

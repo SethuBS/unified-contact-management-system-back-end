@@ -3,6 +3,7 @@ package com.ucms.backend.frontend;
 import com.ucms.backend.dto.ContactDTO;
 import com.ucms.backend.enums.ContactType;
 import com.ucms.backend.enums.Role;
+import com.ucms.backend.response.PaginatedResponse;
 import com.ucms.backend.service.ContactService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -33,11 +34,10 @@ public class ContactView extends VerticalLayout {
     private final ContactService contactService;
     private Dialog contactFormDialog;
     private final Binder<ContactDTO> binder = new Binder<>(ContactDTO.class);
-    private final int pageSize = 10;
     private TextField searchField;
     // Pagination variables
-    private int currentPage = 0;
-    private List<ContactDTO> allContacts;
+    private int currentPage = 1; // Start with page 1
+    private PaginatedResponse<ContactDTO> paginatedContacts;
 
     public ContactView(ContactService contactService) {
         this.contactService = contactService;
@@ -46,8 +46,8 @@ public class ContactView extends VerticalLayout {
         configureGrid();
         configureButtons();
 
-        // Load all contacts and initialize pagination
-        allContacts = contactService.getAllContacts();
+        // Load initial page of contacts
+        loadContacts();
         updateGridItems();
 
         // Add search field, grid, and pagination layout to the main layout
@@ -61,11 +61,8 @@ public class ContactView extends VerticalLayout {
         searchField.setWidth("400px"); // Adjust width
 
         searchField.addValueChangeListener(e -> {
-            String searchTerm = e.getValue().toLowerCase();
-            allContacts = contactService.getAllContacts().stream()
-                    .filter(contact -> contact.getName().toLowerCase().contains(searchTerm) ||
-                            contact.getEmail().toLowerCase().contains(searchTerm))
-                    .collect(Collectors.toList());
+            currentPage = 1; // Reset to first page when searching
+            loadContacts();
             updateGridItems();
         });
     }
@@ -85,12 +82,12 @@ public class ContactView extends VerticalLayout {
             Button deleteButton = new Button("Delete");
             deleteButton.addClickListener(e -> {
                 contactService.deleteContact(contactDTO.getContactId());
-                allContacts = contactService.getAllContacts();
-                updateGridItems(); // Refresh grid
+                loadContacts(); // Reload the contacts after deletion
+                updateGridItems();
                 Notification undoNotification = Notification.show("Contact deleted. Undo?", 5000, Notification.Position.MIDDLE);
                 Button undoButton = new Button("Undo", clickEvent -> {
                     contactService.createContact(contactDTO);
-                    allContacts = contactService.getAllContacts();
+                    loadContacts();
                     updateGridItems();
                     undoNotification.close();
                 });
@@ -142,8 +139,8 @@ public class ContactView extends VerticalLayout {
         deleteSelectedButton.addClickListener(e -> {
             Set<ContactDTO> selectedContacts = grid.getSelectedItems();
             selectedContacts.forEach(contact -> contactService.deleteContact(contact.getContactId()));
-            allContacts = contactService.getAllContacts();
-            updateGridItems(); // Refresh grid
+            loadContacts(); // Reload the contacts after deletion
+            updateGridItems();
             Notification.show(selectedContacts.size() + " contacts deleted", 3000, Notification.Position.MIDDLE);
         });
         return deleteSelectedButton;
@@ -151,15 +148,17 @@ public class ContactView extends VerticalLayout {
 
     private HorizontalLayout createPaginationLayout() {
         Button previousPageButton = new Button("Previous Page", e -> {
-            if (currentPage > 0) {
+            if (currentPage > 1) {
                 currentPage--;
+                loadContacts();
                 updateGridItems();
             }
         });
 
         Button nextPageButton = new Button("Next Page", e -> {
-            if ((currentPage + 1) * pageSize < allContacts.size()) {
+            if (currentPage < paginatedContacts.getTotalPages()) {
                 currentPage++;
+                loadContacts();
                 updateGridItems();
             }
         });
@@ -167,11 +166,15 @@ public class ContactView extends VerticalLayout {
         return new HorizontalLayout(previousPageButton, nextPageButton);
     }
 
+    private void loadContacts() {
+        String searchTerm = searchField.getValue();
+        int pageSize = 15;
+        paginatedContacts = contactService.getAllContacts(currentPage, pageSize, searchTerm);
+    }
+
     // Update grid items based on the current page
     private void updateGridItems() {
-        int start = currentPage * pageSize;
-        int end = Math.min(start + pageSize, allContacts.size());
-        grid.setItems(allContacts.subList(start, end));
+        grid.setItems(paginatedContacts.getContent());
     }
 
     private void openFormDialog(ContactDTO contact, String title) {
@@ -235,8 +238,8 @@ public class ContactView extends VerticalLayout {
                     Notification.show("Contact updated", 3000, Notification.Position.MIDDLE);
                 }
                 contactFormDialog.close();
-                allContacts = contactService.getAllContacts();
-                updateGridItems(); // Refresh grid
+                loadContacts(); // Reload contacts
+                updateGridItems();
             } else {
                 Notification.show("Form is invalid, please check your input.", 3000, Notification.Position.MIDDLE);
             }
@@ -249,13 +252,27 @@ public class ContactView extends VerticalLayout {
     }
 
     private void exportContactsToCsv() {
-        List<ContactDTO> contacts = grid.getListDataView().getItems().toList();
+        List<ContactDTO> contacts = paginatedContacts.getContent();
         String csvContent = contacts.stream()
-                .map(contact -> contact.getName() + "," + contact.getEmail() + "," + contact.getPhone())
+                .map(contact -> String.join(",", contact.getName(), contact.getEmail(), contact.getPhone(), contact.getAddress()))
                 .collect(Collectors.joining("\n"));
 
-        StreamResource resource = new StreamResource("contacts.csv", () -> new ByteArrayInputStream(csvContent.getBytes()));
-        Anchor downloadLink = new Anchor(resource, "Download CSV");
+        // Create a StreamResource for the CSV file
+        StreamResource resource = new StreamResource("contacts.csv",
+                () -> new ByteArrayInputStream(csvContent.getBytes()));
+
+        // Create an Anchor for the download
+        Anchor downloadLink = new Anchor(resource, "Download Contacts CSV");
+        downloadLink.getElement().setAttribute("download", true);
+
+        // Add the download link to the UI
         add(downloadLink);
+
+        // Use JavaScript to simulate a click on the link
+        downloadLink.getElement().callJsFunction("click");
+
+        // Remove the link from the UI after the download has started
+        remove(downloadLink);
     }
+
 }

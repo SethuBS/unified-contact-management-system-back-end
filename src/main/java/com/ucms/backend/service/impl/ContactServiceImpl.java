@@ -7,8 +7,12 @@ import com.ucms.backend.exception.ResourceNotFoundException;
 import com.ucms.backend.map.ContactMapper;
 import com.ucms.backend.model.Contact;
 import com.ucms.backend.repository.ContactRepository;
+import com.ucms.backend.response.PaginatedResponse;
 import com.ucms.backend.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -22,12 +26,25 @@ public class ContactServiceImpl implements ContactService {
     @Autowired
     private ContactRepository contactRepository;
 
+
     @Override
-    public List<ContactDTO> getAllContacts() {
-        return contactRepository.findAll().stream()
+    public PaginatedResponse<ContactDTO> getAllContacts(int page, int size, String search) {
+        Page<Contact> contactPage;
+
+        if (search != null && !search.isEmpty()) {
+            // Use the custom query method for searching across multiple fields
+            contactPage = contactRepository.searchByMultipleFields(search, PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "contactId")));
+        } else {
+            // Fetch all contacts, ordered by contactId in descending order
+            contactPage = contactRepository.findAll(PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "contactId")));
+        }
+
+        List<ContactDTO> contacts = contactPage.getContent().stream()
                 .map(ContactMapper::contactToContactDTO)
-                .sorted(Comparator.comparing(ContactDTO::getContactId).reversed()) // Sort by contactId in descending order
                 .collect(Collectors.toList());
+
+        return new PaginatedResponse<>(contacts, contactPage.getTotalPages(), (int) contactPage.getTotalElements(), page, size);
+
     }
 
     @Override

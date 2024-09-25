@@ -2,26 +2,29 @@ package com.ucms.backend.controller;
 
 
 import com.ucms.backend.dto.ContactDTO;
+import com.ucms.backend.response.PaginatedResponse;
 import com.ucms.backend.service.ContactService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/contacts")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:63342"})
 public class ContactController {
 
     @Autowired
     private ContactService contactService;
 
     @GetMapping
-    public ResponseEntity<List<ContactDTO>> getAllContacts() {
-        List<ContactDTO> contacts = contactService.getAllContacts();
+    public ResponseEntity<PaginatedResponse<ContactDTO>> getAllContacts(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(required = false) String search) {
+        PaginatedResponse<ContactDTO> contacts = contactService.getAllContacts(page, size, search);
         return new ResponseEntity<>(contacts, HttpStatus.OK);
     }
 
