@@ -4,6 +4,8 @@ import com.ucms.backend.enums.ContactType;
 import com.ucms.backend.enums.Role;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Builder
 @Getter
 @Setter
@@ -18,4 +20,5 @@ public class ContactDTO {
     private String phone;
     private String address;
     private Role role;
+    private LocalDate createdAt = LocalDate.now();
 }

@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Builder
 @Getter
 @Setter
@@ -42,6 +44,9 @@ public class Contact {
     @NotNull(message = "Role is required")
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @NotNull(message = "Created at data required")
+    private LocalDate createdAt = LocalDate.now();
 
     @Version
     @Column(name = "version")

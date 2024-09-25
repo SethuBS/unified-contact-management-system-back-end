@@ -18,6 +18,7 @@ public class ContactMapper {
                 .phone(contact.getPhone())
                 .address(contact.getAddress())
                 .role(contact.getRole())
+                .createdAt(contact.getCreatedAt())
                 .build();
 
     }
@@ -34,6 +35,7 @@ public class ContactMapper {
                 .phone(contactDTO.getPhone())
                 .address(contactDTO.getAddress())
                 .role(contactDTO.getRole())
+                .createdAt(contactDTO.getCreatedAt())
                 .build();
     }
 }
