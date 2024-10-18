@@ -32,8 +32,8 @@ public class ContactView extends VerticalLayout {
 
     private final Grid<ContactDTO> grid = new Grid<>(ContactDTO.class);
     private final ContactService contactService;
-    private Dialog contactFormDialog;
     private final Binder<ContactDTO> binder = new Binder<>(ContactDTO.class);
+    private Dialog contactFormDialog;
     private TextField searchField;
     // Pagination variables
     private int currentPage = 1; // Start with page 1
