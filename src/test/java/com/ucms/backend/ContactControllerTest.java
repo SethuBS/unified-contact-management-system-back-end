@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -53,8 +54,8 @@ public class ContactControllerTest {
         String search = "John";
 
         // Sample data
-        ContactDTO contact1 = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john@example.com", "1234567890", "123 Elm St", Role.CUSTOMER);
-        ContactDTO contact2 = new ContactDTO(2L, "Jane Doe", ContactType.COMPANY, "jane@example.com", "0987654321", "456 Oak St", Role.SUPPLIER);
+        ContactDTO contact1 = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john@example.com", "1234567890", "123 Elm St", Role.CUSTOMER, LocalDate.now());
+        ContactDTO contact2 = new ContactDTO(2L, "Jane Doe", ContactType.COMPANY, "jane@example.com", "0987654321", "456 Oak St", Role.SUPPLIER, LocalDate.now());
         List<ContactDTO> contacts = Arrays.asList(contact1, contact2);
         PaginatedResponse<ContactDTO> paginatedResponse = new PaginatedResponse<>(contacts, 1, 2, page, size);
 
@@ -85,7 +86,7 @@ public class ContactControllerTest {
         int size = 20;
 
         // Sample data
-        ContactDTO contact1 = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john@example.com", "1234567890", "123 Elm St", Role.BOTH);
+        ContactDTO contact1 = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john@example.com", "1234567890", "123 Elm St", Role.BOTH, LocalDate.now());
         List<ContactDTO> contacts = List.of(contact1);
         PaginatedResponse<ContactDTO> paginatedResponse = new PaginatedResponse<>(contacts, 1, 1, page, size);
 
@@ -104,7 +105,7 @@ public class ContactControllerTest {
 
     @Test
     void testGetContactById() throws Exception {
-        ContactDTO contact = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john.doe@example.com", "1234567890", "123 Elm Street", Role.CUSTOMER);
+        ContactDTO contact = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john.doe@example.com", "1234567890", "123 Elm Street", Role.CUSTOMER, LocalDate.now());
         when(contactService.getContactById(1L)).thenReturn(Optional.of(contact));
 
         mockMvc.perform(MockMvcRequestBuilders.get("/api/contacts/1"))
@@ -122,7 +123,7 @@ public class ContactControllerTest {
 
     @Test
     void testCreateContact() throws Exception {
-        ContactDTO contact = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john.doe@example.com", "1234567890", "123 Elm Street", Role.CUSTOMER);
+        ContactDTO contact = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john.doe@example.com", "1234567890", "123 Elm Street", Role.CUSTOMER, LocalDate.now());
         when(contactService.createContact(any(ContactDTO.class))).thenReturn(contact);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/contacts")
@@ -134,7 +135,7 @@ public class ContactControllerTest {
 
     @Test
     void testUpdateContact() throws Exception {
-        ContactDTO contact = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john.doe@example.com", "1234567890", "123 Elm Street", Role.CUSTOMER);
+        ContactDTO contact = new ContactDTO(1L, "John Doe", ContactType.PERSON, "john.doe@example.com", "1234567890", "123 Elm Street", Role.CUSTOMER, LocalDate.now());
         when(contactService.updateContact(eq(1L), any(ContactDTO.class))).thenReturn(contact);
 
         mockMvc.perform(put("/api/contacts/1")
